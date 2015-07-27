@@ -43,6 +43,7 @@ public class MainActivity extends ActionBarActivity {
     int activePlayer, roundNumber;
     CountDownTimer timer;
     Context context;
+    GameMetaData gameMetaData;
 
 
     @Override
@@ -56,7 +57,18 @@ public class MainActivity extends ActionBarActivity {
         gridSize = intent.getIntExtra("GRID", 4);
         players = intent.getIntExtra("PLAYERS", 1);
         turnTime = intent.getIntExtra("TIME", 30);
+        turnTime = 10;
         rounds = intent.getIntExtra("ROUNDS", 3);
+
+
+        //Save Game Meta data to cloud
+        gameMetaData = new GameMetaData();
+        gameMetaData.setNumberOfPlayers(players);
+        gameMetaData.setGridSize(gridSize);
+        gameMetaData.setNumberOfRounds(rounds);
+        gameMetaData.setTurnTime(turnTime);
+        gameMetaData.setGameFinishedState(false);
+        gameMetaData.saveInBackground();
 
         //RGB value of the colors: White, Light Grey, Dark Grey and Black
         colors = new int[] {255,160,96,0};
@@ -78,6 +90,14 @@ public class MainActivity extends ActionBarActivity {
             public void onFinish() {
                 tvTimeLeft.setText("0 Seconds");
                 Toast.makeText(getApplicationContext(), "Times Up!!", Toast.LENGTH_SHORT).show();
+                //Save current game state in the cloud
+                GameStateData gameStateData = new GameStateData();
+                gameStateData.setCurrentPlayer(activePlayer);
+                gameStateData.setCurrentRound(roundNumber);
+                gameStateData.setGameMetaData(gameMetaData);
+                gameStateData.setGameStateData(clickCounter);
+                gameStateData.saveInBackground();
+
 
                 activePlayer++;
 
@@ -89,6 +109,9 @@ public class MainActivity extends ActionBarActivity {
                 if(roundNumber > rounds){
                     //Finish the game
                     Toast.makeText(getApplicationContext(), "Finished!", Toast.LENGTH_SHORT).show();
+                    gameMetaData.setGameFinishedState(true);
+                    gameMetaData.saveInBackground();
+
                     AlertDialog finishDialog = new AlertDialog.Builder(context)
                             .setMessage("The game is now finished!")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {

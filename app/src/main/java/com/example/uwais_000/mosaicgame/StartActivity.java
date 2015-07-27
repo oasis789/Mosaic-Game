@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.parse.Parse;
+import com.parse.ParseObject;
+
 
 public class StartActivity extends ActionBarActivity implements AdapterView.OnItemSelectedListener{
 
@@ -28,7 +31,7 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
 
         //Integer arrays of the equivalent data used in string arrays to populate spinners
         playerArray = new int[] {1,2,3,4,5};
-        gridArray = new int[] {4,5,6,7,8,9,10};
+        gridArray = new int[] {4,8,12,16};
         timeArray = new int[] {30,45,60,90,120};
         roundsArray = new int[]{3,5,7,10};
 
