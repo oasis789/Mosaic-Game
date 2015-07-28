@@ -30,7 +30,7 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
         setContentView(R.layout.activity_start);
 
         //Integer arrays of the equivalent data used in string arrays to populate spinners
-        playerArray = new int[] {1,2,3,4,5};
+        playerArray = new int[] {2,3,4,5};
         gridArray = new int[] {4,8,12,16};
         timeArray = new int[] {30,45,60,90,120};
         roundsArray = new int[]{3,5,7,10};

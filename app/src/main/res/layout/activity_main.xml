@@ -80,6 +80,15 @@
                 android:paddingLeft="10dp"/>
 
         </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="3dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@+id/rlLeftHeader"
+            android:id="@+id/view"
+            android:layout_marginTop="5dp"/>
+
     </RelativeLayout>
 
     <TableLayout
