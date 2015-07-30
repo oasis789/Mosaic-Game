@@ -4,43 +4,35 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.CountDownTimer;
-import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity {
 
-    private int gridSize, players, turnTime, rounds;
-    private TableLayout table;
-    private RelativeLayout header;
+    private int gridSize, numberOfPlayers, turnTime, numberOfRounds;
+    private LinearLayout container;
     private TextView tvActivePlayer, tvTimeLeft, tvRound;
     private int activePlayer, roundNumber;
     private CountDownTimer timer;
     private Context context;
     private GameMetaData gameMetaData;
     private MosaicView mosaicView;
+    private ToggleButton toggleButton;
+    private boolean isShadeLighter = false;
+    private ArrayList<int []> localGameState = new ArrayList<int []>();
 
 
     @Override
@@ -51,16 +43,16 @@ public class MainActivity extends ActionBarActivity {
 
         //Get data from intent
         Intent intent = getIntent();
-        gridSize = intent.getIntExtra("GRID", 4);
-        players = intent.getIntExtra("PLAYERS", 2);
-        turnTime = intent.getIntExtra("TIME", 30);
-        rounds = intent.getIntExtra("ROUNDS", 3);
+        gridSize = intent.getIntExtra(GameMetaData.GRID_SIZE_KEY, 4);
+        numberOfPlayers = intent.getIntExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, 2);
+        turnTime = intent.getIntExtra(GameMetaData.TURN_TIME_KEY, 30);
+        numberOfRounds = intent.getIntExtra(GameMetaData.NUMBER_OF_ROUNDS_KEY, 3);
 
         //Save Game Meta data to cloud
         gameMetaData = new GameMetaData();
-        gameMetaData.setNumberOfPlayers(players);
+        gameMetaData.setNumberOfPlayers(numberOfPlayers);
         gameMetaData.setGridSize(gridSize);
-        gameMetaData.setNumberOfRounds(rounds);
+        gameMetaData.setNumberOfRounds(numberOfRounds);
         gameMetaData.setTurnTime(turnTime);
         gameMetaData.setGameFinishedState(false);
         gameMetaData.saveInBackground();
@@ -86,15 +78,16 @@ public class MainActivity extends ActionBarActivity {
                 gameStateData.setGameMetaData(gameMetaData);
                 gameStateData.setGameStateData(mosaicView.getClickCounter());
                 gameStateData.saveInBackground();
+                localGameState.add(mosaicView.getClickCounter());
 
                 activePlayer++;
 
-                if(activePlayer > players){
+                if(activePlayer > numberOfPlayers){
                     activePlayer = 1;
                     roundNumber ++;
                 }
 
-                if(roundNumber > rounds){
+                if(roundNumber > numberOfRounds){
                     //Finish the game
                     Toast.makeText(getApplicationContext(), "Finished!", Toast.LENGTH_SHORT).show();
                     gameMetaData.setGameFinishedState(true);
@@ -102,9 +95,13 @@ public class MainActivity extends ActionBarActivity {
 
                     AlertDialog finishDialog = new AlertDialog.Builder(context)
                             .setMessage("The game is now finished!")
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            .setPositiveButton("View Game Summary", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent(getApplicationContext(), GameResultActivity.class);
+                                    intent.putExtra(GameStateData.GAME_STATE_DATA_KEY, localGameState);
+                                    intent.putExtra(GameMetaData.GRID_SIZE_KEY, gridSize);
+                                    intent.putExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, numberOfPlayers);
                                     finish();
                                 }
                             }).setCancelable(false).create();
@@ -160,19 +157,18 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void createLayout() {
-        table = (TableLayout) findViewById(R.id.tableLayout);
-        header = (RelativeLayout) findViewById(R.id.llHeader);
+        container = (LinearLayout) findViewById(R.id.llMosaicContainer);
         tvActivePlayer = (TextView) findViewById(R.id.tvActivePlayer);
         tvTimeLeft = (TextView) findViewById(R.id.tvTimeLeft);
         tvRound = (TextView) findViewById(R.id.tvRound);
         mosaicView = new MosaicView(context, gridSize, 16);
-
-        header.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        container.addView(mosaicView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        toggleButton = (ToggleButton) findViewById(R.id.switchButton);
+        toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onGlobalLayout() {
-                header.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                //drawMosaicView(table.getHeight(), table.getWidth());
-                mosaicView.drawMosaicView(table, table.getHeight(), table.getWidth());
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isShadeLighter = isChecked;
+                mosaicView.isLighterShade(isShadeLighter);
             }
         });
     }

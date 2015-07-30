@@ -20,7 +20,9 @@
         android:orientation="horizontal"
         android:id="@+id/llHeader"
         android:layout_centerHorizontal="true"
-        android:padding="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="10dp"
         android:layout_below="@+id/tvRound">
 
         <RelativeLayout
@@ -91,13 +93,33 @@
 
     </RelativeLayout>
 
-    <TableLayout
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/llHeader"
+        android:id="@+id/switchButton"
+        android:gravity="center"
+        android:textOn="Shade Lighter"
+        android:textOff="Shade Lighter"
+        android:layout_centerHorizontal="true"
+        android:checked="false"/>
+
+    <!-- <TableLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/tableLayout"
-        android:layout_below="@+id/llHeader"
+        android:layout_below="@+id/switchButton"
         android:layout_alignParentBottom="true">
 
     </TableLayout>
+    -->
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@id/switchButton"
+        android:id="@+id/llMosaicContainer"
+        android:orientation="vertical">
+
+    </LinearLayout>
 </RelativeLayout>

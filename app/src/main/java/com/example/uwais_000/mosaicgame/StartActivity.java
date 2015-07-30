@@ -49,10 +49,10 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
             public void onClick(View v) {
                 //On Play Button Clicked
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.putExtra("PLAYERS", playerSelected);
-                intent.putExtra("GRID", gridSelected);
-                intent.putExtra("TIME", timeSelected);
-                intent.putExtra("ROUNDS", roundsSelected);
+                intent.putExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, playerSelected);
+                intent.putExtra(GameMetaData.GRID_SIZE_KEY, gridSelected);
+                intent.putExtra(GameMetaData.TURN_TIME_KEY, timeSelected);
+                intent.putExtra(GameMetaData.NUMBER_OF_ROUNDS_KEY, roundsSelected);
                 startActivity(intent);
             }
         });

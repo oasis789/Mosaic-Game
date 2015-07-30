@@ -1,33 +1,100 @@
 package com.example.uwais_000.mosaicgame;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 
 /**
  * Created by uwais_000 on 28/07/2015.
  */
-public class MosaicView {
+public class MosaicView extends View{
 
     private int gridSize;
     private Context context;
     private int[] colors;
     private int[] clickCounter;
+    private boolean isShadeLighter = false;
+    private int width, height;
+    private String TAG = "Mosaic View";
+    private Rect[] tiles;
 
     public MosaicView(Context context, int gridSize, int noOfGrayScales){
+        super(context);
         this.gridSize = gridSize;
         this.context = context;
         calculateColors(noOfGrayScales);
         clickCounter = new int[gridSize*gridSize];
+        tiles = new Rect[gridSize*gridSize];
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        final int tileWidth = Math.round((float) width / gridSize);
+        final int tileHeight = Math.round((float) height / gridSize);
+        int tileTopCoor = 0;
+        int tileLeftCoor = 0;
+        for(int i=0; i<gridSize; i++){
+            for(int j=0; j<gridSize; j++){
+                int index = getIndexOfTile(i,j);
+                tiles[index] = new Rect(tileLeftCoor, tileTopCoor, tileLeftCoor + tileWidth, tileTopCoor + tileHeight);
+                Paint paint = new Paint();
+                paint.setColor(getColor(clickCounter[index]));
+                paint.setStyle(Paint.Style.FILL);
+                canvas.drawRect(tiles[index], paint);
+                tileLeftCoor += tileWidth;
+            }
+            tileTopCoor += tileHeight;
+            tileLeftCoor = 0;
+        }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        this.width = w;
+        this.height = h;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int parentWidth = MeasureSpec.getSize(widthMeasureSpec);
+        int parentHeight = MeasureSpec.getSize(heightMeasureSpec);
+        this.setMeasuredDimension(parentWidth, parentHeight);
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        //Log.v(TAG, "onMeasure Width: " + parentWidth);
+        //Log.v(TAG, "onMeasure Height: " + parentHeight);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //Check for single click
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            for (int i=0; i<gridSize; i++){
+                for(int j=0; j<gridSize; j++){
+                    int index = getIndexOfTile(i,j);
+                    if(tiles[index].contains(x, y)){
+                        if(isShadeLighter){
+                            clickCounter[index] += colors.length - 1;
+                        }else{
+                            clickCounter[index]++;
+                        }
+                        invalidate();
+                        return true;
+                    }
+                }
+            }
+        }
+        //TODO: Add functionality for a continuous swipe gesture to fill in the tiles?
+
+        return true;
     }
 
     private void calculateColors(int noOfGrayScales) {
@@ -38,59 +105,11 @@ public class MosaicView {
         colors[noOfGrayScales - 1 ] = 0;
     }
 
-    public void drawMosaicView(TableLayout table, int screenHeight, int screenWidth){
-        //Individual height and width of the tiles
-        final int tileWidth = Math.round((float) screenWidth / gridSize);
-        final int tileHeight = Math.round((float) screenHeight / gridSize);
-
-        for(int i=0; i<gridSize; i++){
-            //Create TableRow as parent for this row
-            TableRow tableRow = new TableRow(context);
-
-            for(int j=0; j< gridSize; j++){
-                //Add tiles to the current row
-                final ImageView tile = new ImageView(context);
-                tile.setId(((gridSize*i) + j));
-                Bitmap bmp = Bitmap.createBitmap(tileWidth,tileHeight, Bitmap.Config.RGB_565);
-                //Set initial bitmap and color it white
-                tile.setImageBitmap(colorBitmap(bmp, 0));
-
-                //On Click make the tile one shade darker
-                tile.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Bitmap bmp = ((BitmapDrawable) tile.getDrawable()).getBitmap();
-                        int id = v.getId();
-                        clickCounter[id]++;
-                        tile.setImageBitmap(colorBitmap(bmp, clickCounter[id]));
-                    }
-                });
-
-                //On long click make the tile one shade lighter
-                tile.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        Bitmap bmp = ((BitmapDrawable) tile.getDrawable()).getBitmap();
-                        int id = v.getId();
-                        clickCounter[id] += (colors.length - 1);
-                        tile.setImageBitmap(colorBitmap(bmp, clickCounter[id]));
-                        return true;
-                    }
-                });
-
-                tableRow.addView(tile);
-            }
-            table.addView(tableRow);
-        }
-
-        Log.v("TAG", String.valueOf(table.getMeasuredWidth()) + " table width");
-        Log.v("TAG", String.valueOf(table.getMeasuredHeight()) + " table height");
+    private int getIndexOfTile(int i, int j){
+        return ((gridSize*i) + j);
     }
 
-    private Bitmap colorBitmap(Bitmap bmp, int clickNumber){
-        Rect r = new Rect(0, 0, bmp.getWidth(), bmp.getHeight());
-        Canvas canvas = new Canvas(bmp);
-        Paint paint = new Paint();
+    private int getColor(int clickNumber){
         int colorNum = 0;
 
         //Determine which shade of grey to use based on the number of clicks
@@ -100,22 +119,12 @@ public class MosaicView {
             colorNum = colors[clickNumber];
         }
 
-        //Draw fill
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.rgb(colorNum, colorNum, colorNum));
-        canvas.drawRect(r, paint);
-
-        //Draw Border
-        /**paint.setColor(Color.BLACK);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(4);
-        canvas.drawRect(r, paint);*/
-
-        return bmp;
+        return Color.rgb(colorNum, colorNum, colorNum);
     }
 
 
     public int[] getClickCounter() {
         return clickCounter;
     }
+    public void isLighterShade(boolean isLighterShade){this.isShadeLighter = isLighterShade;}
 }
