@@ -1,13 +1,18 @@
 package com.example.uwais_000.mosaicgame;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * Created by uwais_000 on 28/07/2015.
@@ -59,6 +64,7 @@ public class MosaicView extends View{
         super.onSizeChanged(w, h, oldw, oldh);
         this.width = w;
         this.height = h;
+        Log.v(TAG, "ratio " + (float) h/w);
     }
 
     @Override
@@ -73,27 +79,28 @@ public class MosaicView extends View{
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        //Check for single click
-        if(event.getAction() == MotionEvent.ACTION_DOWN){
-            int x = (int) event.getX();
-            int y = (int) event.getY();
-            for (int i=0; i<gridSize; i++){
-                for(int j=0; j<gridSize; j++){
-                    int index = getIndexOfTile(i,j);
-                    if(tiles[index].contains(x, y)){
-                        if(isShadeLighter){
-                            clickCounter[index] += colors.length - 1;
-                        }else{
-                            clickCounter[index]++;
+        if(isClickable()) {
+            //Check for single click
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                for (int i = 0; i < gridSize; i++) {
+                    for (int j = 0; j < gridSize; j++) {
+                        int index = getIndexOfTile(i, j);
+                        if (tiles[index].contains(x, y)) {
+                            if (isShadeLighter) {
+                                clickCounter[index] += colors.length - 1;
+                            } else {
+                                clickCounter[index]++;
+                            }
+                            invalidate();
+                            return true;
                         }
-                        invalidate();
-                        return true;
                     }
                 }
             }
+            //TODO: Add functionality for a continuous swipe gesture to fill in the tiles?
         }
-        //TODO: Add functionality for a continuous swipe gesture to fill in the tiles?
-
         return true;
     }
 
@@ -126,5 +133,30 @@ public class MosaicView extends View{
     public int[] getClickCounter() {
         return clickCounter;
     }
+
+    public void setClickCounter(int[] clickCounter){
+        this.clickCounter = clickCounter;
+    }
+
     public void isLighterShade(boolean isLighterShade){this.isShadeLighter = isLighterShade;}
+
+    public void saveViewToFile(String gameId, int currentPlayer, int currentRound){
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+        String root = Environment.getExternalStorageDirectory().toString();
+        File myDir = new File(root + "/Mosaic Game/" + gameId);
+        myDir.mkdirs();
+        String fileName = "Round " + currentRound + " - Player " + currentPlayer + ".jpg";
+        File file = new File(myDir, fileName);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 }

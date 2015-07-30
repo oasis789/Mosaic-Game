@@ -1,8 +1,11 @@
 package com.example.uwais_000.mosaicgame;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,6 +27,7 @@ public class MainMenuActivity extends ActionBarActivity implements View.OnClickL
         localMultiplayer.setOnClickListener(this);
         onlineMultiplayer = (Button) findViewById(R.id.btnOnlineMultiplayer);
         onlineMultiplayer.setOnClickListener(this);
+
     }
 
     @Override

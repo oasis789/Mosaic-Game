@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -58,18 +60,24 @@ public class MainActivity extends ActionBarActivity {
         gameMetaData.saveInBackground();
 
         createLayout();
-
+        final Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         timer = new CountDownTimer(turnTime*1000, 1000){
             @Override
             public void onTick(long millisUntilFinished) {
                 // Log.v("TAG", "seconds remaining: " + millisUntilFinished / 1000);
                 tvTimeLeft.setText(millisUntilFinished / 1000 + " Seconds");
+                if(millisUntilFinished / 1000 < 6) {
+                    v.vibrate(250);
+                    tvTimeLeft.setTextColor(Color.RED);
+                }
             }
 
             @Override
             public void onFinish() {
                 tvTimeLeft.setText("0 Seconds");
-                Toast.makeText(getApplicationContext(), "Times Up!!", Toast.LENGTH_SHORT).show();
+                v.vibrate(500);
+                tvTimeLeft.setTextColor(Color.BLACK);
+                //Toast.makeText(getApplicationContext(), "Times Up!!", Toast.LENGTH_SHORT).show();
 
                 //Save current game state in the cloud
                 GameStateData gameStateData = new GameStateData();
@@ -78,7 +86,10 @@ public class MainActivity extends ActionBarActivity {
                 gameStateData.setGameMetaData(gameMetaData);
                 gameStateData.setGameStateData(mosaicView.getClickCounter());
                 gameStateData.saveInBackground();
-                localGameState.add(mosaicView.getClickCounter());
+                localGameState.add(mosaicView.getClickCounter().clone());
+
+                //Save view state as image file in local storage
+                mosaicView.saveViewToFile(gameMetaData.getCreatedAt().toString(), activePlayer, roundNumber);
 
                 activePlayer++;
 
@@ -102,6 +113,7 @@ public class MainActivity extends ActionBarActivity {
                                     intent.putExtra(GameStateData.GAME_STATE_DATA_KEY, localGameState);
                                     intent.putExtra(GameMetaData.GRID_SIZE_KEY, gridSize);
                                     intent.putExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, numberOfPlayers);
+                                    startActivity(intent);
                                     finish();
                                 }
                             }).setCancelable(false).create();
@@ -162,6 +174,7 @@ public class MainActivity extends ActionBarActivity {
         tvTimeLeft = (TextView) findViewById(R.id.tvTimeLeft);
         tvRound = (TextView) findViewById(R.id.tvRound);
         mosaicView = new MosaicView(context, gridSize, 16);
+        mosaicView.setClickable(true);
         container.addView(mosaicView, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         toggleButton = (ToggleButton) findViewById(R.id.switchButton);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

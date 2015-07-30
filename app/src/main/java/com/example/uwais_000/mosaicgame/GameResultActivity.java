@@ -2,12 +2,17 @@ package com.example.uwais_000.mosaicgame;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Point;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -32,17 +37,38 @@ public class GameResultActivity extends ActionBarActivity {
         gridSize = intent.getIntExtra(GameMetaData.GRID_SIZE_KEY, 4);
         numberOfPlayers = intent.getIntExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, 2);
         int currentPlayer = 1;
+        int currentRound = 1;
+
         for(int[] clickCounter : localGameState){
             TableRow tableRow = new TableRow(this);
+            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
             TextView playerNum = new TextView(this);
-            playerNum.setText(String.valueOf(currentPlayer));
+            playerNum.setText("Round " + currentRound + " - Player " + currentPlayer);
             playerNum.setGravity(Gravity.CENTER);
             int paddingSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics());
             playerNum.setPadding(paddingSize, paddingSize, paddingSize, paddingSize);
-            float textSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 14, getResources().getDisplayMetrics());
-            playerNum.setTextSize(textSize);
+            float textSize = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics());
+            playerNum.setTextSize(14);
+            playerNum.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
             tableRow.addView(playerNum);
+
             MosaicView mosaicView = new MosaicView(this, gridSize, 16);
+            mosaicView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+            mosaicView.setClickCounter(clickCounter);
+            mosaicView.setEnabled(false);
+
+            tableRow.addView(mosaicView, 200, 500);
+            tableRow.setPadding(10, 10, 10, 10);
+
+            tableLayout.addView(tableRow);
+
+
+            currentPlayer ++;
+            if (currentPlayer > numberOfPlayers){
+                currentPlayer = 1;
+                currentRound ++;
+            }
+
         }
     }
 
