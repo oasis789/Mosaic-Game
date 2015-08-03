@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -19,19 +20,23 @@ import com.parse.ParseObject;
 
 public class StartActivity extends ActionBarActivity implements AdapterView.OnItemSelectedListener{
 
-    Spinner playersSpinner, gridSpinner, timeSpinner, roundsSpinner;
-    int[] playerArray, gridArray, timeArray, roundsArray;
-    int playerSelected, gridSelected, timeSelected, roundsSelected;
-    Button playButton;
+    private Spinner playersSpinner, gridSpinner, timeSpinner, roundsSpinner;
+    private int[] playerArray, gridArray, timeArray, roundsArray;
+    private int playerSelected, gridSelected, timeSelected, roundsSelected;
+    private Button playButton;
+    private boolean singlePlayerMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+        if(getIntent().getIntExtra(GameMetaData.NUMBER_OF_PLAYERS_KEY, 2) == 1){
+            singlePlayerMode = true;
+        }
 
         //Integer arrays of the equivalent data used in string arrays to populate spinners
         playerArray = new int[] {2,3,4,5};
-        gridArray = new int[] {4,8,12,16};
+        gridArray = new int[] {4,8,12,16,20,30};
         timeArray = new int[] {30,45,60,90,120};
         roundsArray = new int[]{3,5,7,10};
 
@@ -42,6 +47,12 @@ public class StartActivity extends ActionBarActivity implements AdapterView.OnIt
         roundsSelected = roundsArray[0];
 
         SetupSpinners();
+
+        if(singlePlayerMode){
+            LinearLayout llPlayers = (LinearLayout) findViewById(R.id.llPlayers);
+            llPlayers.setVisibility(View.GONE);
+            playerSelected = 1;
+        }
 
         playButton = (Button) findViewById(R.id.btnPlay);
         playButton.setOnClickListener(new View.OnClickListener() {

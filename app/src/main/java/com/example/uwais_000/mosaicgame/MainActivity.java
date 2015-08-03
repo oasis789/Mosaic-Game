@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -61,6 +63,8 @@ public class MainActivity extends ActionBarActivity {
 
         createLayout();
         final Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        final ColorStateList defaultTextColor = tvTimeLeft.getTextColors();
+
         timer = new CountDownTimer(turnTime*1000, 1000){
             @Override
             public void onTick(long millisUntilFinished) {
@@ -76,7 +80,7 @@ public class MainActivity extends ActionBarActivity {
             public void onFinish() {
                 tvTimeLeft.setText("0 Seconds");
                 v.vibrate(500);
-                tvTimeLeft.setTextColor(Color.BLACK);
+                tvTimeLeft.setTextColor(defaultTextColor);
                 //Toast.makeText(getApplicationContext(), "Times Up!!", Toast.LENGTH_SHORT).show();
 
                 //Save current game state in the cloud
@@ -85,11 +89,14 @@ public class MainActivity extends ActionBarActivity {
                 gameStateData.setCurrentRound(roundNumber);
                 gameStateData.setGameMetaData(gameMetaData);
                 gameStateData.setGameStateData(mosaicView.getClickCounter());
-                gameStateData.saveInBackground();
                 localGameState.add(mosaicView.getClickCounter().clone());
 
-                //Save view state as image file in local storage
-                mosaicView.saveViewToFile(gameMetaData.getCreatedAt().toString(), activePlayer, roundNumber);
+                //Save view state as image file in local storage and on server
+                gameStateData.saveImageLocally(mosaicView.getBitmap());
+                gameStateData.saveImageOnServer(mosaicView.getBitmap());
+
+                gameStateData.saveInBackground();
+
 
                 activePlayer++;
 
@@ -120,25 +127,36 @@ public class MainActivity extends ActionBarActivity {
                     finishDialog.show();
                     timer.cancel();
                 }else{
-                    //Dialog asking user to pass device
-                    AlertDialog dialog = new AlertDialog.Builder(context)
-                            .setMessage("Your turn has now finished. Please pass the device to Player " + activePlayer)
-                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
+                    if(numberOfPlayers > 1) {
+                        //Dialog asking user to pass device
+                        AlertDialog dialog = new AlertDialog.Builder(context)
+                                .setMessage("Your turn has now finished. Please pass the device to Player " + activePlayer)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
 
-                                    tvActivePlayer.setText("Player " + activePlayer);
-                                    if (activePlayer == 1){
-                                        Toast.makeText(getApplicationContext(), "Round " + roundNumber, Toast.LENGTH_SHORT).show();
-                                        tvRound.setText("Round " + roundNumber);
+                                        tvActivePlayer.setText("Player " + activePlayer);
+                                        if (activePlayer == 1) {
+                                            Toast.makeText(getApplicationContext(), "Round " + roundNumber, Toast.LENGTH_SHORT).show();
+                                            tvRound.setText("Round " + roundNumber);
+                                        }
+                                        tvTimeLeft.setText(turnTime + " Seconds");
+                                        //Play
+                                        playGame();
                                     }
-                                    tvTimeLeft.setText(turnTime + " Seconds");
-                                    //Play
-                                    playGame();
-                                }
-                            }).setCancelable(false).create();
-                    dialog.show();
+                                }).setCancelable(false).create();
+                        dialog.show();
+                    }else{
+                        tvActivePlayer.setText("Player " + activePlayer);
+                        if (activePlayer == 1) {
+                            Toast.makeText(getApplicationContext(), "Round " + roundNumber, Toast.LENGTH_SHORT).show();
+                            tvRound.setText("Round " + roundNumber);
+                        }
+                        tvTimeLeft.setText(turnTime + " Seconds");
+                        //Play
+                        playGame();
+                    }
                 }
             }
         };

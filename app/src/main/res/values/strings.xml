@@ -18,6 +18,8 @@
         <item>8x8</item>
         <item>12x12</item>
         <item>16x16</item>
+        <item>20x20</item>
+        <item>30x30</item>
     </string-array>
 
     <string-array name="turnTime_array">

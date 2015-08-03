@@ -89,9 +89,17 @@ public class MosaicView extends View{
                         int index = getIndexOfTile(i, j);
                         if (tiles[index].contains(x, y)) {
                             if (isShadeLighter) {
-                                clickCounter[index] += colors.length - 1;
+                                //Remove circular behaviour of gray scale
+                                //Cannot shade lighter if tile is already white
+                                if(clickCounter[index] > 0){
+                                    clickCounter[index]--;
+                                }
                             } else {
-                                clickCounter[index]++;
+                                //Remove circular behaviour of gray scale
+                                //Cannot shade darker if tile is already black
+                                if(clickCounter[index] < colors.length - 1){
+                                    clickCounter[index]++;
+                                }
                             }
                             invalidate();
                             return true;
@@ -140,23 +148,11 @@ public class MosaicView extends View{
 
     public void isLighterShade(boolean isLighterShade){this.isShadeLighter = isLighterShade;}
 
-    public void saveViewToFile(String gameId, int currentPlayer, int currentRound){
+    public Bitmap getBitmap(){
         Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         draw(canvas);
-        String root = Environment.getExternalStorageDirectory().toString();
-        File myDir = new File(root + "/Mosaic Game/" + gameId);
-        myDir.mkdirs();
-        String fileName = "Round " + currentRound + " - Player " + currentPlayer + ".jpg";
-        File file = new File(myDir, fileName);
-        try {
-            FileOutputStream out = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        return bitmap;
     }
 
 }

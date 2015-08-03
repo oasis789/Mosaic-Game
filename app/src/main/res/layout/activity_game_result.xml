@@ -17,8 +17,8 @@
             android:stretchColumns="1">
 
             <TableRow>
-                <TextView android:layout_height="fill_parent" android:layout_width="wrap_content" android:text="Game Stage" android:layout_gravity="center" android:textSize="18dp" android:padding="5dp" android:textStyle="bold"/>
-                <TextView android:layout_height="fill_parent" android:layout_width="wrap_content" android:text="Mosaic Picture" android:layout_gravity="center" android:textSize="18dp" android:padding="5dp" android:textStyle="bold"/>
+                <TextView android:layout_height="fill_parent" android:layout_width="wrap_content" android:text="Game Stage" android:layout_gravity="center" android:textSize="18sp" android:padding="5dp" android:textStyle="bold"/>
+                <TextView android:layout_height="fill_parent" android:layout_width="wrap_content" android:text="Mosaic Picture" android:layout_gravity="center" android:textSize="18sp" android:padding="5dp" android:textStyle="bold"/>
             </TableRow>
 
 
