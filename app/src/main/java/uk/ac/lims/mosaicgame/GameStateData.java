@@ -1,7 +1,6 @@
-package com.example.uwais_000.mosaicgame;
+package uk.ac.lims.mosaicgame;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.os.Environment;
 
 import com.parse.ParseClassName;
@@ -12,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

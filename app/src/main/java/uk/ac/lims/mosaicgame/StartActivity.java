@@ -1,8 +1,8 @@
-package com.example.uwais_000.mosaicgame;
+package uk.ac.lims.mosaicgame;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,10 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import com.parse.Parse;
-import com.parse.ParseObject;
 
 
 public class StartActivity extends ActionBarActivity implements AdapterView.OnItemSelectedListener{

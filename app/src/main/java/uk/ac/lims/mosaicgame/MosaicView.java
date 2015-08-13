@@ -1,4 +1,4 @@
-package com.example.uwais_000.mosaicgame;
+package uk.ac.lims.mosaicgame;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,13 +6,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-
-import java.io.File;
-import java.io.FileOutputStream;
 
 /**
  * Created by uwais_000 on 28/07/2015.

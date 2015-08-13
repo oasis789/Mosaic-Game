@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.uwais_000.mosaicgame" >
+    package="uk.ac.lims.mosaicgame" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -9,23 +9,23 @@
 
 
     <application
-        android:name=".App"
+        android:name="uk.ac.lims.mosaicgame.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MainActivity"
+            android:name="uk.ac.lims.mosaicgame.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".StartActivity"
+            android:name="uk.ac.lims.mosaicgame.StartActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".MainMenuActivity"
+            android:name="uk.ac.lims.mosaicgame.MainMenuActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GameResultActivity"
+            android:name="uk.ac.lims.mosaicgame.GameResultActivity"
             android:label="@string/title_activity_game_result" >
         </activity>
     </application>

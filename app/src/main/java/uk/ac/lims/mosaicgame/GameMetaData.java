@@ -1,4 +1,4 @@
-package com.example.uwais_000.mosaicgame;
+package uk.ac.lims.mosaicgame;
 
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
